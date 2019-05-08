@@ -121,17 +121,35 @@
                 })
             },
             handleEdit(index, row) {
-                console.log(index)
-                console.log(row)
+                // console.log(index)
+                // console.log(row)
             },
+            //删除用户
             handleDelete(index, row) {
-                console.log(index)
-                console.log(row)
+                // console.log(index)
+                // console.log(row)
+                this.$confirm('你真的要把它删除吗?o(╥﹏╥)o', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                        this.$request.deleteUser(row.id).then(res=>{
+                            console.log(res)
+                            if(res.data.meta.status===200){
+                                this.getUsers()
+                            }
+                        })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '你真好'
+                    });
+                });;
             },
             //改变用户状态
             stateChange(row) {
                 this.$request.updateStatus({id: row.id, type: row.mg_state}).then(res => {
-                    console.log(res)
+                    // console.log(res)
                 })
             },
             //验证
@@ -141,7 +159,7 @@
                         // alert('submit!');
                         //发请求添加用户
                         this.$request.addUser(this.addForm).then(res=>{
-                            console.log(res)
+                            // console.log(res)
                             //关闭弹框
                             this.addVisible = false
                             //获取数据
@@ -151,7 +169,6 @@
                         })
                     } else {
                         this.$message.error('数据格式不对')
-                        console.log('error submit!!');
                         return false;
                     }
                 });
