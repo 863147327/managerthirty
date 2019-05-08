@@ -62,8 +62,21 @@
                     date: '2016-05-03',
                     name: '王小虎',
                     address: '上海市普陀区金沙江路 1516 弄'
-                }]
+                }],
+                usersData: {
+                    query: '',
+                    pagenum: 1,
+                    pagesize: 10
+                }
             }
+        },
+        created(){
+            this.$request.getUsers(this.usersData).then(res=>{
+                console.log(res)
+            })
+        },
+        methods: {
+
         }
     }
 </script>

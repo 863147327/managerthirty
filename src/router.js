@@ -29,6 +29,10 @@ const routes = [
         component: index,
         children: [
             {
+                path: '',
+                redirect: 'users'
+            },
+            {
                 path: 'users',
                 component: users
             },
