@@ -1,7 +1,7 @@
 <template>
     <div class="login">
         <div class="center-box">
-            <el-form label-position="top" :model="loginForm"  :rules="loginRules" label-width="80px">
+            <el-form label-position="top" :model="loginForm" :rules="loginRules" ref="loginForm" label-width="80px">
                 <h2>用户登录</h2>
                 <el-form-item label="用户名" prop="username">
                     <el-input v-model="loginForm.username"></el-input>
@@ -10,7 +10,8 @@
                     <el-input v-model="loginForm.password" type="password"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button class="my-btn" type="primary">登录</el-button>
+                    <el-button type="primary" @click="submitForm('loginForm')">登录</el-button>
+                    <el-button @click="resetForm('loginForm')">重置</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -40,6 +41,31 @@
             }
         },
 
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // 格式正确
+                        this.$request.login(this.loginForm).then(res=>{
+                            console.log(res)
+                            if(res.data.meta.status === 200){
+                                this.$router.push('/')
+                                sessionStorage.setItem('token',res.data.data.token)
+                            }else{
+                                this.$message.error(res.data.meta.msg)
+                            }
+                        })
+                    } else {
+                        // 格式错误
+                        this.$message.error('数据格式不对哦')
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        },
 
         creates(){
             this.$request.sayHi()

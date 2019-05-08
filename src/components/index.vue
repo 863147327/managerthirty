@@ -14,7 +14,7 @@
                 </el-col>
                 <el-col :span="8" >
                     <div class="grid-content bg-purple right">
-                        <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                        <el-button type="danger" icon="el-icon-delete" @click="logout" circle></el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -77,8 +77,22 @@
 
 <script>
     export default {
-        name: "index"
+        name: "index",
+        beforeCreate(){
+            if(!sessionStorage.getItem('token')){
+                this.$message.error('请登录')
+                this.$router.push('login')
+            }
+        },
+        methods: {
+            logout(){
+                sessionStorage.removeItem('token')
+                this.$router.push('login')
+            }
+        }
+
     }
+
 </script>
 
 <style lang="scss">
