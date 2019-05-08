@@ -3,14 +3,14 @@
         <!--面包屑-->
         <el-breadcrumb separator-class="el-icon-arrow-right" class="my-bread">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-            <el-breadcrumb-item>角色列表</el-breadcrumb-item>
+            <el-breadcrumb-item>商品管理</el-breadcrumb-item>
+            <el-breadcrumb-item>商品分类</el-breadcrumb-item>
         </el-breadcrumb>
 
         <!--搜索框-->
         <el-row>
             <el-col :span="6">
-                <el-button type="success" plain>添加角色</el-button>
+                <el-button type="warning" plain>添加分类</el-button>
             </el-col>
         </el-row>
 
@@ -24,6 +24,14 @@
             </el-table-column>
         </el-table>
 
+        <!--分页-->
+        <el-pagination
+                :current-page="1"
+                :page-sizes="[5, 10, 15, 20]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="60">
+        </el-pagination>
 
     </div>
 </template>
