@@ -10,8 +10,8 @@
         <!--搜索框-->
         <el-row>
             <el-col :span="6">
-                <el-input placeholder="请输入内容" class="input-with-select">
-                    <el-button slot="append" icon="el-icon-search"></el-button>
+                <el-input placeholder="请输入内容" v-model="usersData.query" @keyup.native.enter="getUsers" class="input-with-select">
+                    <el-button slot="append" @click="getUsers" icon="el-icon-search"></el-button>
                 </el-input>
             </el-col>
             <el-col :span="6">
@@ -44,9 +44,11 @@
 
         <!--分页-->
         <el-pagination
-                :current-page="1"
+                @size-change="sizeChange"
+                @current-change="currentChange"
+                :current-page="usersData.pagenum"
                 :page-sizes="[5, 10, 15, 20]"
-                :page-size="10"
+                :page-size="usersData.pagesize"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total">
         </el-pagination>
@@ -119,12 +121,12 @@
                     this.total = res.data.data.total
                 })
             },
-            handleEdit(index, row) {
+            handleEdit(index,row) {
                 // console.log(index)
                 // console.log(row)
             },
             //删除用户
-            handleDelete(index, row) {
+            handleDelete(index,row) {
                 // console.log(index)
                 // console.log(row)
                 this.$confirm('你真的要把它删除吗?o(╥﹏╥)o', '提示', {
@@ -143,7 +145,7 @@
                         type: 'info',
                         message: '你真好'
                     });
-                });;
+                });
             },
             //改变用户状态
             stateChange(row) {
@@ -174,6 +176,16 @@
             },
             //添加用户
 
+            //页容量改变分页
+            sizeChange(size){
+                this.usersData.pagesize = size
+                this.getUsers()
+            },
+            //页码改变
+            currentChange(num){
+                this.usersData.pagenum = num
+                this.getUsers()
+            }
         }
     }
 </script>
