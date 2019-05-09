@@ -37,7 +37,8 @@
                                @click="handleEdit(niubi.$index, niubi.row)" plain></el-button>
                     <el-button type="danger" size="mini" icon="el-icon-delete"
                                @click="handleDelete(niubi.$index, niubi.row)" plain></el-button>
-                    <el-button type="success" size="mini" icon="el-icon-check" plain></el-button>
+                    <el-button type="success" size="mini" icon="el-icon-check"
+                               @click="handleRole(niubi.row)"plain></el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -72,6 +73,39 @@
         <el-button type="primary" @click="submitForm('addForm')">确 定</el-button>
 
         </el-dialog>
+        <!--编辑用户-->
+        <el-dialog title="编辑用户" :visible.sync="editVisible" width="30%" >
+            <el-form :model="editForm" :rules="addRules" ref="editForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="editForm.username" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="">
+                    <el-input v-model="editForm.email"></el-input>
+                </el-form-item>
+                <el-form-item label="手机号" prop="">
+                    <el-input v-model="editForm.mobile"></el-input>
+                </el-form-item>
+            </el-form>
+        <el-button @click="editVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
+
+        </el-dialog>
+        <!--修改用户角色-->
+        <el-dialog title="编辑用户" :visible.sync="updateVisible" width="30%" >
+            <el-form :model="updateForm" :rules="addRules" ref="updateForm" label-width="100px" class="demo-ruleForm">
+                <el-form-item label="当前用户" prop="username">
+                    <el-input v-model="updateForm.username" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="请选择角色" prop="">
+                    <el-select v-model="rolesvalue" placeholder="请选择">
+                        <el-option label="请分配角色" :value="-1" :disabled="updateForm.rid!=-1"></el-option>
+                        <el-option v-for="item in roles" :key="item.value" :label="item.roleName" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <el-button @click="updateVisible = false">取 消</el-button>
+            <el-button type="primary" @click="submitForm('updateForm')">确 定</el-button>
+        </el-dialog>
     </div>
 </template>
 
@@ -84,12 +118,11 @@
                 usersData: {
                     query: '',
                     pagenum: 1,
-                    pagesize: 10
+                    pagesize: 5
                 },
                 total: 0,
                 //是否显示新增对话框
                 addVisible: false,
-
                 addForm: {
                     username: '',
                     password: '',
@@ -106,14 +139,26 @@
                         { required: true, message: '请输入密码', trigger: 'blur' },
                         { min: 6, max: 12, message: '长度在 6 到 12 个字符', trigger: 'blur' }
                     ]
-                }
+                },
+                // 是否显示编辑框
+                editVisible: false,
+                //编辑用户数据
+                editForm:{},
+                // 是否显示修改框
+                updateVisible: false,
+                // 分配角色数据
+                updateForm: {},
+                // 所有角色
+                roles: [],
+                // 选中的角色  双向数据绑定
+                rolesvalue: ''
             }
         },
-
         created() {
             this.getUsers()
         },
         methods: {
+            // 获取数据
             getUsers(){
                 this.$request.getUsers(this.usersData).then(res => {
                     console.log(res)
@@ -121,11 +166,19 @@
                     this.total = res.data.data.total
                 })
             },
+            // 编辑用户
             handleEdit(index,row) {
                 // console.log(index)
                 // console.log(row)
+                this.$request.getUserById(row.id).then(res=>{
+                    // console.log(res)
+                    this.editForm = res.data.data
+                    // console.log(this.editForm)
+                    this.editVisible = true
+                })
+
             },
-            //删除用户
+            // 删除用户
             handleDelete(index,row) {
                 // console.log(index)
                 // console.log(row)
@@ -147,41 +200,69 @@
                     });
                 });
             },
-            //改变用户状态
+            // 分配用户角色
+            handleRole(row){
+                // 获取用户角色
+                this.$request.getUserById(row.id).then(res=>{
+                    console.log(res.data.data)
+                    this.updateForm = res.data.data
+                    // 获取所有角色
+                    this.$request.getRoles().then(res=>{
+                        // console.log(res)
+                        this.roles = res.data.data
+                        this.updateVisible = true
+                        this.rolesvalue = this.updateForm.rid
+                        // console.log(this.updateForm)
+                    })
+
+                })
+            },
+            // 改变用户状态
             stateChange(row) {
                 this.$request.updateStatus({id: row.id, type: row.mg_state}).then(res => {
                     // console.log(res)
                 })
             },
-            //验证
+            // 验证
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         // alert('submit!');
-                        //发请求添加用户
-                        this.$request.addUser(this.addForm).then(res=>{
-                            // console.log(res)
-                            //关闭弹框
-                            this.addVisible = false
-                            //获取数据
-                            this.getUsers()
-                            //表单重置
-                            this.$refs[formName].resetFields();
-                        })
+                        if(formName == 'editForm'){
+                            // 编辑用户
+                            this.$request.updateUser(this.editForm).then(res=>{
+                                console.log(this.editForm)
+                                console.log(res)
+                                if(res.data.meta.status === 200){
+                                    this.getUsers()
+                                    this.editVisible = false
+                                    console.log(this.editVisible)
+                                }
+                            })
+                        }else{
+                            // 发请求添加用户
+                            this.$request.addUser(this.addForm).then(res=>{
+                                // console.log(res)
+                                // 关闭弹框
+                                this.addVisible = false
+                                // 获取数据
+                                this.getUsers()
+                                // 表单重置
+                                this.$refs[formName].resetFields();
+                            })
+                        }
                     } else {
                         this.$message.error('数据格式不对')
                         return false;
                     }
                 });
             },
-            //添加用户
-
-            //页容量改变分页
+            // 页容量改变分页
             sizeChange(size){
                 this.usersData.pagesize = size
                 this.getUsers()
             },
-            //页码改变
+            // 页码改变
             currentChange(num){
                 this.usersData.pagenum = num
                 this.getUsers()
