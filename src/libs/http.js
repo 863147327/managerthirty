@@ -98,6 +98,10 @@ const request = {
     // 删除角色
     deleteRoles(id){
         return axios.delete(`roles/${id}`)
+    },
+    // 获取所有权限列表
+    getRights(type){
+        return axios.get(`rights/${type}`)
     }
 }
 
