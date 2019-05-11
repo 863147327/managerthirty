@@ -16,21 +16,28 @@
 
         <!--表格-->
         <el-table :data="tableData" border style="width: 100%">
-            <el-table-column  type="expand">
+            <el-table-column type="expand">
                 <template slot-scope="props">
                     <el-row v-for="(level1,index) in props.row._children">
                         <el-col :span="6">
-                            <el-tag type="primary" :key="level1.id" @close="delRight(props.row,level1.id)" closable>{{ level1.authName }}</el-tag>
+                            <el-tag type="primary" :key="level1.id" @close="delRight(props.row,level1.id)" closable>{{
+                                level1.authName }}
+                            </el-tag>
                             <span class="el-icon-arrow-right"></span>
                         </el-col>
                         <el-col :span="18">
                             <el-row v-for="(level2,i) in level1.children">
                                 <el-col :span="6">
-                                    <el-tag type="success" :key="level2.id" @close="delRight(props.row,level2.id)" closable>{{ level2.authName }}</el-tag>
+                                    <el-tag type="success" :key="level2.id" @close="delRight(props.row,level2.id)"
+                                            closable>{{ level2.authName }}
+                                    </el-tag>
                                     <span class="el-icon-arrow-right"></span>
                                 </el-col>
                                 <el-col :span="18">
-                                    <el-tag class="my-tag" type="warning" v-for="(level3,j) in level2.children" :key="level3.id"  @close="delRight(props.row,level3.id)" closable>{{ level3.authName }}</el-tag>
+                                    <el-tag class="my-tag" type="warning" v-for="(level3,j) in level2.children"
+                                            :key="level3.id" @close="delRight(props.row,level3.id)" closable>{{
+                                        level3.authName }}
+                                    </el-tag>
                                 </el-col>
                             </el-row>
                         </el-col>
@@ -38,7 +45,7 @@
                 </template>
             </el-table-column>
             <el-table-column type="index" width="50"></el-table-column>
-            <el-table-column prop="roleName" label="角色名称" ></el-table-column>
+            <el-table-column prop="roleName" label="角色名称"></el-table-column>
             <el-table-column prop="roleDesc" label="角色描述"></el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="niubi">
@@ -46,17 +53,18 @@
                                @click="handleEdit(niubi.$index, niubi.row)" plain></el-button>
                     <el-button type="danger" size="mini" icon="el-icon-delete"
                                @click="handleDelete(niubi.$index, niubi.row)" plain></el-button>
-                    <el-button type="success" size="mini" icon="el-icon-check" plain></el-button>
+                    <el-button type="success" size="mini" icon="el-icon-check"
+                               @click="handleRole(niubi.row)" plain></el-button>
                 </template>
             </el-table-column>
         </el-table>
         <!--新增角色-->
-        <el-dialog title="添加角色" :visible.sync="addVisible" width="30%" >
+        <el-dialog title="添加角色" :visible.sync="addVisible" width="30%">
             <el-form :model="addForm" :rules="addRules" ref="addForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item label="角色名称" prop="roleName">
                     <el-input v-model="addForm.roleName"></el-input>
                 </el-form-item>
-                <el-form-item label="角色描述" >
+                <el-form-item label="角色描述">
                     <el-input v-model="addForm.roleDesc"></el-input>
                 </el-form-item>
             </el-form>
@@ -66,12 +74,12 @@
         </el-dialog>
 
         <!--编辑用户角色-->
-        <el-dialog title="添加角色" :visible.sync="editVisible" width="30%" >
+        <el-dialog title="编辑角色" :visible.sync="editVisible" width="30%">
             <el-form :model="editForm" :rules="addRules" ref="editForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item label="角色名称" prop="roleName">
                     <el-input v-model="editForm.roleName"></el-input>
                 </el-form-item>
-                <el-form-item label="角色描述" >
+                <el-form-item label="角色描述">
                     <el-input v-model="editForm.roleDesc"></el-input>
                 </el-form-item>
             </el-form>
@@ -80,17 +88,18 @@
 
         </el-dialog>
         <!--权限分配-->
-        <el-dialog title="权限分配" :visible.sync="rightVisible" width="30%" >
-            <!--<el-tree-->
-                    <!--:data="rightForm"-->
-                    <!--show-checkbox-->
-                    <!--node-key="id"-->
-                    <!--:default-expanded-keys="[2, 3]"-->
-                    <!--:default-checked-keys="[5]"-->
-                    <!--:props="defaultProps">-->
-            <!--</el-tree>-->
-            <el-button @click="editVisible = false">取 消</el-button>
-            <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
+        <el-dialog title="权限分配" :visible.sync="rightVisible" width="30%">
+            <el-tree
+                    :data="rightData"
+                    show-checkbox
+                    node-key="id"
+                    default-expand-all
+                    ref="tree"
+                    :default-checked-keys="defaultCheckRight"
+                    :props="defaultProps">
+            </el-tree>
+            <el-button @click="rightVisible = false">取 消</el-button>
+            <el-button type="primary" @click="setRolesRights">确 定</el-button>
         </el-dialog>
     </div>
 </template>
@@ -112,8 +121,8 @@
                 // 新增用户的表单验证规则
                 addRules: {
                     roleName: [
-                        { required: true, message: '请输入用户名', trigger: 'blur' },
-                        { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+                        {required: true, message: '请输入用户名', trigger: 'blur'},
+                        {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
                     ]
                 },
                 // 显示编辑框
@@ -121,22 +130,30 @@
                 // 编辑角色
                 editForm: {},
                 // 所有权限
-                rightForm: {},
+                rightData: [],
                 // 分配角色框显示
                 rightVisible: false,
-                //
+                // 选中权限的数据
+                rightForm: {},
+                //默认选中的权限
+                defaultCheckRight: [],
+                // 对应属性
+                defaultProps: {
+                    children: 'children',
+                    label: 'authName'
+                }
 
             }
         },
-        created(){
-           this.getRoles()
+        created() {
+            this.getRoles()
         },
         methods: {
             // 编辑角色
-            handleEdit(index,row) {
+            handleEdit(index, row) {
                 // console.log(index)
                 // console.log(row)
-                this.$request.getRolesById(row.id).then(res=>{
+                this.$request.getRolesById(row.id).then(res => {
                     // console.log(res)
                     this.editForm = res.data.data
                     // console.log(this.editForm)
@@ -145,7 +162,7 @@
 
             },
             // 删除角色
-            handleDelete(index,row) {
+            handleDelete(index, row) {
                 // console.log(index)
                 // console.log(row)
                 this.$confirm('你真的要把它删除吗?o(╥﹏╥)o', '提示', {
@@ -153,9 +170,9 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.$request.deleteRoles(row.id).then(res=>{
+                    this.$request.deleteRoles(row.id).then(res => {
                         console.log(res)
-                        if(res.data.meta.status===200){
+                        if (res.data.meta.status === 200) {
                             this.getRoles()
                         }
                     })
@@ -166,44 +183,75 @@
                     });
                 });
             },
-            // 获取数据
-            getRoles(){
-                // 获取数据
-                this.$request.getRoles().then(res=>{
+            // 修改权限
+            handleRole(row) {
+                console.log(row)
+                this.rightVisible = true
+                this.rightForm = row
+                this.$request.getRights('tree').then(res => {
                     console.log(res)
+                    this.rightData = res.data.data
+                    // 设置选中的值
+                    let checkedIds = []
+
+                    function getChecksKeys(item) {
+                        item._children.forEach(v => {
+                            // console.log(v.id)
+                            checkedIds.push(v.id)
+                            if (v.children) {
+                                v._children = v.children
+                                getChecksKeys(v)
+                            }
+                        })
+                    }
+
+                    getChecksKeys(row)
+
+                    // console.log(checkedIds)
+                    this.defaultCheckRight = checkedIds
+                    // console.log(this.defaultCheckRight)
+
+                })
+            },
+            // 获取角色数据
+            getRoles() {
+                // 获取数据
+                this.$request.getRoles().then(res => {
+                    // console.log(res)
                     // 把数据处理一下
-                    let data = res.data.data
+                    let Data = res.data.data
+                    // console.log(Data)
                     // 遍历把children属性移除
-                    data.forEach(v => {
+                    Data.forEach(v => {
                         v._children = v.children;
                         // 删除children属性
                         delete v.children;
                     });
-                    this.tableData = data
+                    this.tableData = Data
                 })
             },
             // 验证
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                           if(formName == 'editForm'){
-                               this.editForm.id = this.editForm.roleId
-                               this.$request.editRoles(this.editForm).then(res=>{
-                                   this.getRoles()
-                                   this.editVisible = false
-                               })
-                           }else{
-                               // 发请求添加用户
-                               this.$request.addRoles(this.addForm).then(res=>{
-                                   // console.log(res)
-                                   // 关闭弹框
-                                   this.addVisible = false
-                                   // 获取数据
-                                   this.getRoles()
-                                   // 表单重置
-                                   this.$refs[formName].resetFields();
-                               })
-                           }
+                        if (formName == 'editForm') {
+                            this.editForm.id = this.editForm.roleId
+                            this.$request.editRoles(this.editForm).then(res => {
+                                this.getRoles()
+                                this.editVisible = false
+                            })
+                        } else {
+                            // 发请求添加用户
+                            this.$request.addRoles(this.addForm).then(res => {
+                                // console.log(res)
+                                // 关闭弹框
+                                this.addVisible = false
+                                // 获取数据
+                                this.getRoles()
+                                // 表单重置
+                                this.$refs[formName].resetFields();
+                            })
+                        }
                     } else {
                         this.$message.error('数据格式不对')
                         return false;
@@ -211,14 +259,31 @@
                 });
             },
             // 删除角色指定权限
-            delRight(row,rightId){
+            delRight(row, rightId) {
                 this.$request.deleteRight({
                     roleId: row.id,
                     rightId
-                }).then(res=>{
-                    // console.log(res)
+                }).then(res => {
+                    console.log(res)
                     row._children = res.data.data
                 })
+            },
+
+            // 角色授权
+            setRolesRights() {
+                const rids = this.$refs.tree.getCheckedKeys().join(",");
+                // console.log(rids)
+                // 调接口
+                this.$request.setRoleRights({
+                    roleId: this.rightForm.id,
+                    rids
+                }).then(res => {
+                    // console.log(res)
+                    if (res.data.meta.status == 200) {
+                        this.getRoles()
+                    }
+                })
+                this.rightVisible = false
             }
         }
     }
@@ -231,6 +296,7 @@
         padding-left: 10px;
         background-color: #d3dce6;
     }
+
     .my-tag {
         margin-right: 5px;
         margin-bottom: 5px

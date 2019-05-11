@@ -120,6 +120,13 @@ const request = {
     // 删除角色制定权限
     deleteRight(params){
         return axios.delete(`roles/${params.roleId}/rights/${params.rightId}`)
+    },
+
+    // 角色授权
+    setRoleRights(params){
+        return axios.post(`roles/${params.roleId}/rights`,{
+            rids: params.rids
+        })
     }
 }
 
