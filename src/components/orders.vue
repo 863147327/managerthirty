@@ -24,7 +24,7 @@
             <el-table-column label="操作">
                 <template slot-scope="niubi">
                     <el-button type="primary" size="mini" icon="el-icon-edit"
-                               @click="handleEdit(niubi.$index, niubi.row)" plain></el-button>
+                               @click="editVisible = true" plain></el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -38,11 +38,30 @@
                 :total="60">
         </el-pagination>
 
+        <!--编辑框-->
+        <el-dialog title="修改用户订单" :visible.sync="editVisible" width="30%" >
+            <el-form :model="editForm" ref="editForm" label-width="100px" class="demo-ruleForm" >
+                <el-form-item label="省市区/县" prop="username">
+                    <v-distpicker  @selected="selected"></v-distpicker>
+                </el-form-item>
+                <el-form-item label="详细地址" prop="">
+                    <el-input v-model="editForm.email"></el-input>
+                </el-form-item>
+            </el-form>
+            <el-button @click="editVisible = false">取 消</el-button>
+            <el-button type="primary" @click="editVisible = false">确 定</el-button>
+
+        </el-dialog>
+
     </div>
 </template>
 
 <script>
     import moment from 'moment'
+    // 倒入省市区数据
+    import options from '../assets/city_data2017_element'
+    //  导入省市联动组件
+    import VDistpicker from 'v-distpicker'
     export default {
         name: "users",
         data() {
@@ -51,10 +70,20 @@
                 ordersData: {
                     pagenum: 1,
                     pagesize: 10
-                }
+                },
+                // 级链选择器省市区数据
+                options,
+                editForm: {
+                    address: ''
+                },
+                editVisible:false,
+                //选中的数据
+                selectedOptions2: []
             }
         },
-
+        components: {
+            VDistpicker
+        },
         // 过滤器
         filters:{
             formatTime(value){
@@ -66,6 +95,11 @@
             this.$request.getOrderslist(this.ordersData).then(res=>{
                 this.tableData = res.data.data.goods
             })
+        },
+        methods: {
+            selected(ssq){
+                console.log(ssq)
+            }
         }
     }
 </script>

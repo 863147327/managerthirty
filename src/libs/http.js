@@ -116,6 +116,11 @@ const request = {
             params
         })
     },
+
+    // 删除角色制定权限
+    deleteRight(params){
+        return axios.delete(`roles/${params.roleId}/rights/${params.rightId}`)
+    }
 }
 
 export default {

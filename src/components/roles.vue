@@ -16,8 +16,29 @@
 
         <!--表格-->
         <el-table :data="tableData" border style="width: 100%">
+            <el-table-column  type="expand">
+                <template slot-scope="props">
+                    <el-row v-for="(level1,index) in props.row._children">
+                        <el-col :span="6">
+                            <el-tag type="primary" :key="level1.id" @close="delRight(props.row,level1.id)" closable>{{ level1.authName }}</el-tag>
+                            <span class="el-icon-arrow-right"></span>
+                        </el-col>
+                        <el-col :span="18">
+                            <el-row v-for="(level2,i) in level1.children">
+                                <el-col :span="6">
+                                    <el-tag type="success" :key="level2.id" @close="delRight(props.row,level2.id)" closable>{{ level2.authName }}</el-tag>
+                                    <span class="el-icon-arrow-right"></span>
+                                </el-col>
+                                <el-col :span="18">
+                                    <el-tag class="my-tag" type="warning" v-for="(level3,j) in level2.children" :key="level3.id"  @close="delRight(props.row,level3.id)" closable>{{ level3.authName }}</el-tag>
+                                </el-col>
+                            </el-row>
+                        </el-col>
+                    </el-row>
+                </template>
+            </el-table-column>
             <el-table-column type="index" width="50"></el-table-column>
-            <el-table-column prop="roleName" label="角色名称"></el-table-column>
+            <el-table-column prop="roleName" label="角色名称" ></el-table-column>
             <el-table-column prop="roleDesc" label="角色描述"></el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="niubi">
@@ -29,8 +50,6 @@
                 </template>
             </el-table-column>
         </el-table>
-
-
         <!--新增角色-->
         <el-dialog title="添加角色" :visible.sync="addVisible" width="30%" >
             <el-form :model="addForm" :rules="addRules" ref="addForm" label-width="100px" class="demo-ruleForm">
@@ -45,19 +64,33 @@
             <el-button type="primary" @click="submitForm('addForm')">确 定</el-button>
 
         </el-dialog>
-        <!--编辑角色-->
-        <el-dialog title="编辑角色" :visible.sync="editVisible" width="30%" >
+
+        <!--编辑用户角色-->
+        <el-dialog title="添加角色" :visible.sync="editVisible" width="30%" >
             <el-form :model="editForm" :rules="addRules" ref="editForm" label-width="100px" class="demo-ruleForm">
-                <el-form-item label="角色名称" prop="username">
-                    <el-input v-model="editForm.roleName" disabled></el-input>
+                <el-form-item label="角色名称" prop="roleName">
+                    <el-input v-model="editForm.roleName"></el-input>
                 </el-form-item>
-                <el-form-item label="角色描述" prop="">
+                <el-form-item label="角色描述" >
                     <el-input v-model="editForm.roleDesc"></el-input>
                 </el-form-item>
             </el-form>
             <el-button @click="editVisible = false">取 消</el-button>
             <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
 
+        </el-dialog>
+        <!--权限分配-->
+        <el-dialog title="权限分配" :visible.sync="rightVisible" width="30%" >
+            <!--<el-tree-->
+                    <!--:data="rightForm"-->
+                    <!--show-checkbox-->
+                    <!--node-key="id"-->
+                    <!--:default-expanded-keys="[2, 3]"-->
+                    <!--:default-checked-keys="[5]"-->
+                    <!--:props="defaultProps">-->
+            <!--</el-tree>-->
+            <el-button @click="editVisible = false">取 消</el-button>
+            <el-button type="primary" @click="submitForm('editForm')">确 定</el-button>
         </el-dialog>
     </div>
 </template>
@@ -87,7 +120,11 @@
                 editVisible: false,
                 // 编辑角色
                 editForm: {},
-
+                // 所有权限
+                rightForm: {},
+                // 分配角色框显示
+                rightVisible: false,
+                //
 
             }
         },
@@ -173,6 +210,16 @@
                     }
                 });
             },
+            // 删除角色指定权限
+            delRight(row,rightId){
+                this.$request.deleteRight({
+                    roleId: row.id,
+                    rightId
+                }).then(res=>{
+                    // console.log(res)
+                    row._children = res.data.data
+                })
+            }
         }
     }
 </script>
@@ -183,5 +230,9 @@
         line-height: 50px;
         padding-left: 10px;
         background-color: #d3dce6;
+    }
+    .my-tag {
+        margin-right: 5px;
+        margin-bottom: 5px
     }
 </style>
