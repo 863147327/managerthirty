@@ -8,11 +8,24 @@
         </el-breadcrumb>
         <!--表格-->
         <el-table :data="tableData" border style="width: 100%">
-            <el-table-column prop="date" label="日期" width="180">
+            <el-table-column type="index" width="50"></el-table-column>
+            <el-table-column prop="order_number" label="订单编号"></el-table-column>
+            <el-table-column prop="order_price" label="订单价格"></el-table-column>
+            <el-table-column prop="pay_status" label="是否付款">
+                <template slot-scope="scope">
+                    <el-button v-if="scope.row.pay_status==0" type="danger" plain>未付款</el-button>
+                    <el-button v-else type="success" plain>已付款</el-button>
+                </template>
             </el-table-column>
-            <el-table-column prop="name" label="姓名" width="180">
+            <el-table-column prop="is_send" label="是否发货"></el-table-column>
+            <el-table-column label="下单时间">
+                <template slot-scope="scope">{{ scope.row.create_time | formatTime }}</template>
             </el-table-column>
-            <el-table-column prop="address" label="地址">
+            <el-table-column label="操作">
+                <template slot-scope="niubi">
+                    <el-button type="primary" size="mini" icon="el-icon-edit"
+                               @click="handleEdit(niubi.$index, niubi.row)" plain></el-button>
+                </template>
             </el-table-column>
         </el-table>
 
@@ -29,28 +42,30 @@
 </template>
 
 <script>
+    import moment from 'moment'
     export default {
         name: "users",
         data() {
             return {
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }]
+                tableData: [],
+                ordersData: {
+                    pagenum: 1,
+                    pagesize: 10
+                }
             }
+        },
+
+        // 过滤器
+        filters:{
+            formatTime(value){
+                return moment(value).format('YYYT-MM-DD HH:mm:ss')
+            }
+        },
+
+        created(){
+            this.$request.getOrderslist(this.ordersData).then(res=>{
+                this.tableData = res.data.data.goods
+            })
         }
     }
 </script>

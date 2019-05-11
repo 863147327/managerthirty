@@ -18,6 +18,7 @@ import params from './components/params.vue'
 import categories from './components/categories.vue'
 import orders from './components/orders.vue'
 import reports from './components/reports.vue'
+import error from './components/error'
 //写规则
 const routes = [
     {
@@ -64,13 +65,30 @@ const routes = [
                 path: 'reports',
                 component: reports
             },
+            {
+                path: 'error',
+                component: error
+            }
         ]
     }
 ]
 
+
+
 //实例化router
 const router = new VueRouter({
+    mode: 'history',
     routes
+})
+
+
+// 导航守卫
+router.beforeEach((to, from, next) => {
+    if(to.matched.length == 0){
+        next('error')
+    }else{
+        next()
+    }
 })
 
 //暴露出去

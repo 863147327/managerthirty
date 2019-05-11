@@ -33,7 +33,7 @@ axios.interceptors.response.use(function (response) {
         sessionStorage.clear('token')
         response.data.data = []
     }else{
-        Vue.prototype.$message(response.data.meta.msg)
+        Vue.prototype.$message.success(response.data.meta.msg)
     }
     return response;
 }, function (error) {
@@ -102,7 +102,20 @@ const request = {
     // 获取所有权限列表
     getRights(type){
         return axios.get(`rights/${type}`)
-    }
+    },
+
+
+    // 获取展示的数据
+    getReports(){
+        return axios.get('reports/type/1')
+    },
+
+    // 获取订单数据列表
+    getOrderslist(params){
+        return axios.get('orders',{
+            params
+        })
+    },
 }
 
 export default {
