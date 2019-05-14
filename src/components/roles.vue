@@ -185,11 +185,11 @@
             },
             // 修改权限
             handleRole(row) {
-                console.log(row)
+                // console.log(row)
                 this.rightVisible = true
                 this.rightForm = row
                 this.$request.getRights('tree').then(res => {
-                    console.log(res)
+                    // console.log(res)
                     this.rightData = res.data.data
                     // 设置选中的值
                     let checkedIds = []
@@ -197,10 +197,11 @@
                     function getChecksKeys(item) {
                         item._children.forEach(v => {
                             // console.log(v.id)
-                            checkedIds.push(v.id)
                             if (v.children) {
                                 v._children = v.children
                                 getChecksKeys(v)
+                            }else{
+                                checkedIds.push(v.id)
                             }
                         })
                     }
@@ -264,26 +265,33 @@
                     roleId: row.id,
                     rightId
                 }).then(res => {
-                    console.log(res)
+                    // console.log(res)
                     row._children = res.data.data
                 })
             },
 
             // 角色授权
             setRolesRights() {
-                const rids = this.$refs.tree.getCheckedKeys().join(",");
-                // console.log(rids)
+                let rids = this.$refs.tree.getCheckedKeys().join(",")+',';
+                console.log(rids)
+                const half  =this.$refs.tree.getHalfCheckedKeys()
+                console.log(half)
+                rids = rids.concat(half)
+                console.log(rids)
                 // 调接口
                 this.$request.setRoleRights({
                     roleId: this.rightForm.id,
                     rids
                 }).then(res => {
+                    this.rightVisible = false
                     // console.log(res)
                     if (res.data.meta.status == 200) {
                         this.getRoles()
                     }
+                    this.$request.getMenus().then(res=>{
+                        this.$store.commit('changeMenulist',res.data.data)
+                    })
                 })
-                this.rightVisible = false
             }
         }
     }

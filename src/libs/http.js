@@ -127,6 +127,18 @@ const request = {
         return axios.post(`roles/${params.roleId}/rights`,{
             rids: params.rids
         })
+    },
+
+    // 获取左侧菜单栏
+    getMenus(){
+        return axios.get('menus')
+    },
+
+    // 商品列表数据
+    getGoods(params){
+        return axios.get('goods',{
+            params
+        })
     }
 }
 
