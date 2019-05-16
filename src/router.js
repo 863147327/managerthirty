@@ -19,6 +19,8 @@ import categories from './components/categories.vue'
 import orders from './components/orders.vue'
 import reports from './components/reports.vue'
 import error from './components/error'
+import goodslist from './components/goodslist'
+import goodsadd from './components/goodsAdd'
 //写规则
 const routes = [
     {
@@ -47,7 +49,17 @@ const routes = [
             },
             {
                 path: 'goods',
-                component: goods
+                component: goods,
+                children: [
+                    {
+                        path:'',
+                        component: goodslist
+                    },
+                    {
+                        path: 'add',
+                        component: goodsadd
+                    }
+                ]
             },
             {
                 path: 'params',
